@@ -155,7 +155,8 @@ dependencies:
     - networkx
     - notebook
     - notebook-shim
-    - numpy
+    - numpy<2.0.0
+    - torch-scatter
     - open3d
     - opencv-python
     - openexr
@@ -171,6 +172,7 @@ dependencies:
     - psutil
     - ptyprocess
     - pygments
+    - PyMCubes
     - pyrsistent
     - pytz
     - pywavelets

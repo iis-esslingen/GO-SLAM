@@ -8,6 +8,6 @@
     "runArgs": [
         "--gpus",
         "all"
-    ],
-    "postCreateCommand": "/bin/bash post_install_script.sh"
+    ]
+    // "postCreateCommand": "/bin/bash post_install_script.sh"
 }
