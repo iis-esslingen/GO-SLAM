@@ -2,8 +2,8 @@
     "name": "CUDA 11.6 Development",
     // "image": "nvidia/cuda:11.6.1-devel-ubuntu20.04",
     "build": {
-        "dockerfile": "dockerfile"
-        // "context": ".." Only when inside .devcontainer
+        "dockerfile": "dockerfile",
+        "context": ".." // Only when inside .devcontainer
     },
     "runArgs": [
         "--gpus",
