@@ -1,3 +1,6 @@
+#!/bin/bash
+set -eux
+
 echo ">>> Start of post install script <<<"
 
 conda activate go-slam
@@ -8,8 +11,3 @@ python setup.py install
 # pip install torch-scatter PyMCubes -> now inside of environment.yaml
 
 echo ">>> End of post install script <<<"
-
-
-#TODOs:
-# Add RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y DONE
-# pip install torch-scatter or conda install pytorch-scatter -c pyg DONE

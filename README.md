@@ -102,13 +102,15 @@ python setup.py install
 
 ### Using Docker
 
-1. Create a docker environmnet using the provided dockerfile.
+1. Create a docker environment using the provided dockerfile.
  - It will create a suitable ubuntu22.04 cuda:12.1.0-devel         container, and install almost all dependencies automatically.
+ - Using devcontainer.json, two mounts are created: /ouput (path for go-slam results) and /data (path for recorded data in the supported format [e.g. tum format]).
 
 2. Make sure that conda environment 'go-slam' is activated
- - If 'go-slam' is not active already after opening the docker container, initialize conda: ```conda init``` & activate environment with ```conda activate go-slam```.
+ - If 'go-slam' is not already active after opening the docker container, initialize conda: ```conda init``` & activate the environment with ```conda activate go-slam```.
 
-3. Execute the following in the given order:
+3. (obsolete!) Execute the following in the given order:
+  - This step is now done with an automatically executed post creation script. If this script fails to run, try running it manually using the following commands:
 ```bash
 pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
 pip install evo --upgrade --no-binary evo

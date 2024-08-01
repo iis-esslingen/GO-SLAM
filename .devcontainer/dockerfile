@@ -48,22 +48,5 @@ COPY environment.yaml environment.yaml
 RUN conda env create -f environment.yaml && \
     sudo rm environment.yaml
 
-# Activate the conda environment and install additional python dependencies
-SHELL ["conda", "run", "-n", "go-slam", "/bin/bash", "-c"]
-# RUN pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
-# RUN pip install evo --upgrade --no-binary evo
-
-# Execute the last step of the setup process, provided by go-slam
-# COPY setup.py setup.py
-# RUN python setup.py install&& \
-#     sudo rm setup.py
-
 # Activate conda everytime, when (re)opening bash terminal
 RUN sudo echo ". activate go-slam" > ~/.bashrc
-
-
-# Does not work like intended inside of conda env, 
-# one solution would be to install and execute the following inside of a postCreate bash script:
-#   >git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
-#   >evo
-#   >setup.py
