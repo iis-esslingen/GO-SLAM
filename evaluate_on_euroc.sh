@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MODE=$1
+MODE=$1       # 'mono', 'stereo', 'rgbd'
 EXPNAME=$2
 
 OUT_DIR=$3
