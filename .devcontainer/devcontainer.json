@@ -1,5 +1,5 @@
 {
-    "name": "CUDA 11.6 Development",
+    "name": "Ubuntu 22.04 CUDA 12.1 Development",
     // "image": "nvidia/cuda:11.6.1-devel-ubuntu20.04",
     "build": {
         "dockerfile": "dockerfile",
@@ -8,6 +8,10 @@
     "runArgs": [
         "--gpus",
         "all"
+    ],
+    "mounts": [
+        "source=/data_storage/datasets/tum,target=/workspaces/GO-SLAM/data,type=bind",
+        "source=/data_storage/go-slam,target=/workspaces/GO-SLAM/output,type=bind"
     ]
-    // "postCreateCommand": "/bin/bash post_install_script.sh"
+    // "postCreateCommand": "/bin/bash post_install_script.sh" -> Doesn't just work automatically: Conda needs to be initialized first.
 }
