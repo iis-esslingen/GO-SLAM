@@ -10,7 +10,7 @@
         "all"
     ],
     "mounts": [
-        "source=/data_storage/datasets/tum,target=/workspaces/GO-SLAM/data,type=bind",
+        "source=/data_storage/tum-datasets,target=/workspaces/GO-SLAM/data,type=bind",
         "source=/data_storage/go-slam,target=/workspaces/GO-SLAM/output,type=bind"
     ],
     "postCreateCommand": "bash -i .devcontainer/post_install_script.sh"

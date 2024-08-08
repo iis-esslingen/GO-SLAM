@@ -79,7 +79,12 @@ if __name__ == '__main__':
     else:
         output_dir = args.output
 
-    backup_source_code(os.path.join(output_dir, 'code'))
+    #backup_source_code(os.path.join(output_dir, 'code'))
+    # without backup_source_code function, the output_dir structure has to be created here:
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir)
+
     config.save_config(cfg, f'{output_dir}/cfg.yaml')
 
     dataset = get_dataset(cfg, args, device=args.device)
