@@ -1,39 +1,39 @@
 FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
 # Create a new user and set the password
-ARG USERNAME=developer 
-ARG USER_UID=1000 
-ARG USER_GID=$USER_UID 
-ARG PASSWORD=dev 
-RUN apt-get update && apt-get install -y sudo && \
-    groupadd --gid $USER_GID $USERNAME && \
-    useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME && \
-    echo "$USERNAME:$PASSWORD" | chpasswd && \
-    usermod -aG sudo $USERNAME && \
-    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
-    chmod 0440 /etc/sudoers.d/$USERNAME 
+# ARG USERNAME=developer 
+# ARG USER_UID=1000 
+# ARG USER_GID=$USER_UID 
+# ARG PASSWORD=dev 
+# RUN apt-get update && apt-get install -y sudo && \
+#     groupadd --gid $USER_GID $USERNAME && \
+#     useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME && \
+#     echo "$USERNAME:$PASSWORD" | chpasswd && \
+#     usermod -aG sudo $USERNAME && \
+#     echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
+#     chmod 0440 /etc/sudoers.d/$USERNAME 
 
-# Ensure sudoers file is read-only  
-RUN chmod 0440 /etc/sudoers.d/$USERNAME 
-USER $USERNAME
+# # Ensure sudoers file is read-only  
+# RUN chmod 0440 /etc/sudoers.d/$USERNAME 
+# USER $USERNAME
 
 # Install essential tools
-RUN sudo apt-get update && \
-    sudo apt-get upgrade -y && \
-    sudo apt-get install -y build-essential && \
-    sudo apt-get install -y \
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y build-essential && \
+    apt-get install -y \
     git \
     wget \
     libopenexr-dev \
     ffmpeg \
     libsm6 \
     libxext6 \
-    && sudo apt-get clean \
-    && sudo rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install miniconda (https://fabiorosado.dev/blog/install-conda-in-docker/)
 ENV CONDA_DIR /opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
-    sudo /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
+    /bin/bash /tmp/miniconda.sh -b -p /opt/conda && \
     rm /tmp/miniconda.sh
 
 # Put conda in path so we can use conda activate
@@ -46,7 +46,7 @@ RUN conda init bash
 # RUN sudo git clone --recursive https://github.com/youmi-zym/GO-SLAM
 COPY environment.yaml environment.yaml
 RUN conda env create -f environment.yaml && \
-    sudo rm environment.yaml
+    rm environment.yaml
 
 # Activate conda everytime, when (re)opening bash terminal
-RUN sudo echo ". activate go-slam" > ~/.bashrc
+RUN echo ". activate go-slam" > ~/.bashrc
