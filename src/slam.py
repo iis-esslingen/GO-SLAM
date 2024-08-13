@@ -306,6 +306,7 @@ class SLAM:
             import evo.main_ape as main_ape
             from evo.core.metrics import PoseRelation
             from evo.core.trajectory import PosePath3D
+            from evo.tools import file_interface
             import numpy as np
 
             print("#"*20 + f" Results for {stream.input_folder} ...")
@@ -354,10 +355,12 @@ class SLAM:
                     orientations_quat_wxyz=traj_est[:,3:],
                     timestamps=np.array(timestamps))
 
+                file_interface.write_tum_trajectory_file(os.path.join(self.output, "slam_trajectory.txt"), traj_est)
+
                 traj_ref =PosePath3D(poses_se3=traj_ref)
 
                 result = main_ape.ape(traj_ref, traj_est, est_name='traj',
-                                      pose_relation=PoseRelation.translation_part, align=True, correct_scale=True)
+                                      pose_relation=PoseRelation.translation_part, align=True, correct_scale=True if self.mode == "mono" else False)
 
                 out_path=f'{self.output}/metrics_traj.txt'
                 with open(out_path, 'a') as fp:
