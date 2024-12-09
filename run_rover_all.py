@@ -8,9 +8,6 @@ from src import config
 from src.slam import SLAM
 from src.datasets import get_dataset
 
-import warnings
-
-warnings.filterwarnings("ignore", category=FutureWarning)
 
 import random
 def setup_seed(seed):
@@ -35,6 +32,8 @@ def backup_source_code(backup_directory):
     shutil.copytree('.', backup_directory, ignore=ignore_hidden)
     os.system('chmod -R g+w {}'.format(backup_directory))
 
+
+SEQUENCES =  ["2023-08-18", "2023-09-15", "2024-01-13", "2024-04-11", "2024-05-29_1", "2024-05-29_2", "2024-05-29_3", "2024-05-29_4"]
 
 if __name__ == '__main__':
     setup_seed(43)
@@ -79,30 +78,37 @@ if __name__ == '__main__':
     print(f"\n\n** Running {cfg['data']['input_folder']} in {cfg['mode']} mode!!! **\n\n")
     
     errors = dict()
+
+    for date in SEQUENCES:
+        print(f"Running Date: {date}")
         
-    args.input_folder = base_data_path
-    args.output = os.path.join(base_output_path, args.mode)
+        args.input_folder = os.path.join(base_data_path, date)
+        args.output = os.path.join(base_output_path, date, args.mode)
 
-    if args.output is None:
-        output_dir = cfg['data']['output']
-    else:
-        output_dir = args.output
+        if args.output is None:
+            output_dir = cfg['data']['output']
+        else:
+            output_dir = args.output
 
-    # backup_source_code(os.path.join(output_dir, 'code'))
-    # without backup_source_code function, the output_dir structure has to be created here:
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-    os.makedirs(output_dir)
+        # backup_source_code(os.path.join(output_dir, 'code'))
+        # without backup_source_code function, the output_dir structure has to be created here:
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        os.makedirs(output_dir)
 
-    config.save_config(cfg, f'{output_dir}/cfg.yaml')
+        config.save_config(cfg, f'{output_dir}/cfg.yaml')
 
-    dataset = get_dataset(cfg, args, device=args.device)
-    
-    slam = SLAM(args, cfg)
+        dataset = get_dataset(cfg, args, device=args.device)
+        
+        slam = SLAM(args, cfg)
 
-    slam.run(dataset)
+        try:
+            slam.run(dataset)
+        except Exception as e:
+            errors[f"{location} - {date}"] =  str(e)
+            continue
 
-    slam.terminate(rank=-1, stream=dataset)
+        slam.terminate(rank=-1, stream=dataset)
 
-    print('Done!')
+        print('Done!')
 
