@@ -1,6 +1,6 @@
 sync_method: strict
 verbose: False
-dataset: 'stihl'
+dataset: 'rover'
 mode: 'rgbd'
 stride: 1
 only_tracking: True

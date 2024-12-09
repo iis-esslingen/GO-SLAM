@@ -33,19 +33,7 @@ def backup_source_code(backup_directory):
     os.system('chmod -R g+w {}'.format(backup_directory))
 
 
-SEQUENCES = {
-    "kwald/drosselweg/flaeche1": [
-        "2023-08-18", "2023-09-15", "2024-01-13", "2024-04-11", "2024-05-29_1", "2024-05-29_2", "2024-05-29_3", "2024-05-29_4"],
-    "kwald/drosselweg/flaeche2": [
-        "2023-08-18", "2023-12-21", "2024-01-13", "2024-04-11", "2024-05-29_1", "2024-05-30_1", "2024-05-30_2"],
-    "esslingen/hse_dach": [
-        "2023-07-20", "2023-11-07", "2024-01-27", "2024-04-14"],
-    "esslingen/hse_hinterhof": [
-        "2023-07-31", "2023-11-07", "2024-04-14", "2024-05-08", "2024-05-13_1", "2024-05-13_2", "2024-05-24_2"],
-    "esslingen/hse_sporthalle": [
-        "2023-09-11", "2023-11-23", "2024-02-19", "2024-04-14", "2024-05-07", "2024-05-08_1", "2024-05-08_2", "2024-05-24_1"],
-}
-
+SEQUENCES =  ["2023-08-18", "2023-09-15", "2024-01-13", "2024-04-11", "2024-05-29_1", "2024-05-29_2", "2024-05-29_3", "2024-05-29_4"]
 
 if __name__ == '__main__':
     setup_seed(43)
@@ -91,37 +79,36 @@ if __name__ == '__main__':
     
     errors = dict()
 
-    for location, dates in SEQUENCES.items():
-        for date in dates:
-            print(f"Running Location: {location} - Date: {date}")
-            
-            args.input_folder = os.path.join(base_data_path, location, date, "tum", "d435i")
-            args.output = os.path.join(base_output_path, location, date, args.mode, "d435i")
+    for date in SEQUENCES:
+        print(f"Running Location: {location} - Date: {date}")
+        
+        args.input_folder = os.path.join(base_data_path, date, "d435i")
+        args.output = os.path.join(base_output_path, date, args.mode, "d435i")
 
-            if args.output is None:
-                output_dir = cfg['data']['output']
-            else:
-                output_dir = args.output
+        if args.output is None:
+            output_dir = cfg['data']['output']
+        else:
+            output_dir = args.output
 
-            # backup_source_code(os.path.join(output_dir, 'code'))
-            # without backup_source_code function, the output_dir structure has to be created here:
-            if os.path.exists(output_dir):
-                shutil.rmtree(output_dir)
-            os.makedirs(output_dir)
+        # backup_source_code(os.path.join(output_dir, 'code'))
+        # without backup_source_code function, the output_dir structure has to be created here:
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        os.makedirs(output_dir)
 
-            config.save_config(cfg, f'{output_dir}/cfg.yaml')
+        config.save_config(cfg, f'{output_dir}/cfg.yaml')
 
-            dataset = get_dataset(cfg, args, device=args.device)
-            
-            slam = SLAM(args, cfg)
+        dataset = get_dataset(cfg, args, device=args.device)
+        
+        slam = SLAM(args, cfg)
 
-            try:
-                slam.run(dataset)
-            except Exception as e:
-                errors[f"{location} - {date}"] =  str(e)
-                continue
+        try:
+            slam.run(dataset)
+        except Exception as e:
+            errors[f"{location} - {date}"] =  str(e)
+            continue
 
-            slam.terminate(rank=-1, stream=dataset)
+        slam.terminate(rank=-1, stream=dataset)
 
-            print('Done!')
+        print('Done!')
 
