@@ -1,0 +1,14 @@
+{
+    "name": "Ubuntu 22.04 CUDA 12.1 Development",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "container",
+    "overrideCommand": true,
+    "initializeCommand": [
+        ".devcontainer/initialize_command"
+    ],
+    "postCreateCommand": "bash -i go-slam/.devcontainer/post_install_script.sh",
+    "workspaceFolder": "/workspace",
+    "containerEnv": {
+        "DISPLAY": "${localEnv:DISPLAY::0}"
+    }
+}

@@ -8,6 +8,9 @@ from src import config
 from src.slam import SLAM
 from src.datasets import get_dataset
 
+import warnings
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 import random
 def setup_seed(seed):
@@ -59,7 +62,10 @@ if __name__ == '__main__':
     cfg = config.load_config(
         args.config, './configs/go_slam.yaml'
     )
-
+    
+    base_data_path = args.input_folder
+    base_output_path = args.output
+    
     if args.mode is not None:
         cfg['mode'] = args.mode
     if args.only_tracking:
@@ -71,15 +77,18 @@ if __name__ == '__main__':
 
     assert cfg['mode'] in ['rgbd', 'mono', 'stereo'], cfg['mode']
     print(f"\n\n** Running {cfg['data']['input_folder']} in {cfg['mode']} mode!!! **\n\n")
-
-    print(args)
+    
+    errors = dict()
+        
+    args.input_folder = base_data_path
+    args.output = os.path.join(base_output_path, args.mode)
 
     if args.output is None:
         output_dir = cfg['data']['output']
     else:
         output_dir = args.output
 
-    #backup_source_code(os.path.join(output_dir, 'code'))
+    # backup_source_code(os.path.join(output_dir, 'code'))
     # without backup_source_code function, the output_dir structure has to be created here:
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
@@ -88,8 +97,9 @@ if __name__ == '__main__':
     config.save_config(cfg, f'{output_dir}/cfg.yaml')
 
     dataset = get_dataset(cfg, args, device=args.device)
-
+    
     slam = SLAM(args, cfg)
+
     slam.run(dataset)
 
     slam.terminate(rank=-1, stream=dataset)

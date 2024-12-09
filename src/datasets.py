@@ -634,4 +634,5 @@ dataset_dict = {
     "tumrgbd": TUM_RGBD,
     'eth3d': ETH3D,
     'euroc': EuRoC,
+    "rover": TUM_RGBD
 }

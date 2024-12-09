@@ -39,6 +39,7 @@ University of Bologna
 2. [Code](#memo-code)
 3. [Qualitative Results](#art-qualitative-results)
 4. [Contacts](#envelope-contacts)
+5. [Known Issues](#issues-known-issues)
 
 </div>
 
@@ -97,6 +98,23 @@ pip install evo --upgrade --no-binary evo
 
 python setup.py install
 
+```
+
+### Using Docker
+
+1. Create a docker environment using the provided dockerfile.
+ - It will create a suitable ubuntu22.04 cuda:12.1.0-devel         container, and install almost all dependencies automatically.
+ - Using devcontainer.json, two mounts are created: /ouput (path for go-slam results) and /data (path for recorded data in the supported format [e.g. tum format]).
+
+2. Make sure that conda environment 'go-slam' is activated
+ - If 'go-slam' is not already active after opening the docker container, initialize conda: ```conda init``` & activate the environment with ```conda activate go-slam```.
+
+3. (obsolete!) Execute the following in the given order:
+  - This step is now done with an automatically executed post creation script. If this script fails to run, try running it manually using the following commands:
+```bash
+pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
+pip install evo --upgrade --no-binary evo
+python setup.py install
 ```
 
 ### Replica
@@ -255,3 +273,34 @@ For questions, please send an email to youmin.zhang2@unibo.it, fabio.tosi5@unibo
 We sincerely thank the scholarship supported by China Scholarship Council (CSC). 
 
 We adapted some codes from some awesome repositories including [NICE-SLAM](https://github.com/cvg/nice-slam), [NeuS](https://github.com/Totoro97/NeuS) and [DROID-SLAM](https://github.com/princeton-vl/DROID-SLAM).
+
+
+## :issues: Known Issues
+
+### Tracking buffer overflow
+
+This runtime error occurs, when the buffer used for tracking is set too small.
+
+```bash
+/opt/conda/conda-bld/pytorch_1720538643151/work/aten/src/ATen/native/cuda/IndexKernel.cu:92: operator(): block: [393283,0,0], thread: [97,0,0] Assertion `-sizes[i] <= index && index < sizes[i] && "index out of bounds"` failed.
+
+Process Process-1:
+Traceback (most recent call last):
+  (...)
+  File "/workspaces/GO-SLAM/src/factor_graph.py", line 264, in update_lowmem
+    corr_op = AltCorrBlock(self.video.fmaps[sel_index].view(1, num*rig, ch, ht, wd))
+RuntimeError: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+terminate called after throwing an instance of 'c10::Error'
+  what():  CUDA error: device-side assert triggered
+
+Exception raised from c10_cuda_check_implementation at /opt/conda/conda-bld/pytorch_1720538643151/work/c10/cuda/CUDAException.cpp:43 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::string) + 0x96 (0x791a620f9f86 in /home/developer/.conda/envs/go-slam/lib/python3.9/site-packages/torch/lib/libc10.so)
+frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, std::string const&) + 0x64 (0x791a620a8d10 in /home/developer/.conda/envs/go-slam/lib/python3.9/site-packages/torch/lib/libc10.so)
+(...)
+```
+
+**Solution:** In the used yaml config file, set the parameter 'tracking: buffer' to a higher value (e.g. from 512 to 1024).
