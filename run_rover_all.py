@@ -52,8 +52,6 @@ if __name__ == '__main__':
                         help='image height and width, this have higher priority, can overwrite the one in config file')
     parser.add_argument('--calibration_txt', type=str, default=None,
                         help='calibration parameters: fx, fy, cx, cy, this have higher priority, can overwrite the one in config file')
-    parser.add_argument('--mode', type=str,
-                        help='slam mode: mono, rgbd or stereo')
     args = parser.parse_args()
 
     torch.multiprocessing.set_start_method('spawn')
@@ -65,50 +63,47 @@ if __name__ == '__main__':
     base_data_path = args.input_folder
     base_output_path = args.output
     
-    if args.mode is not None:
-        cfg['mode'] = args.mode
     if args.only_tracking:
         cfg['only_tracking'] = True
     if args.image_size is not None:
         cfg['cam']['H'], cfg['cam']['W'] = args.image_size
     if args.calibration_txt is not None:
         cfg['cam']['fx'], cfg['cam']['fy'], cfg['cam']['cx'], cfg['cam']['cy'] = np.loadtxt(args.calibration_txt).tolist()
-
-    assert cfg['mode'] in ['rgbd', 'mono', 'stereo'], cfg['mode']
-    print(f"\n\n** Running {cfg['data']['input_folder']} in {cfg['mode']} mode!!! **\n\n")
     
     errors = dict()
 
-    for date in SEQUENCES:
-        print(f"Running Date: {date}")
+    for mode in ["mono", "rgbd"]:
+        cfg['mode'] = mode
         
-        args.input_folder = os.path.join(base_data_path, date)
-        args.output = os.path.join(base_output_path, date, args.mode)
+        for date in SEQUENCES:
+            print(f"Running Date: {date} in Mode: {mode}")
+            
+            args.input_folder = os.path.join(base_data_path, date)
+            args.output = os.path.join(base_output_path, date, args.mode)
 
-        if args.output is None:
-            output_dir = cfg['data']['output']
-        else:
-            output_dir = args.output
+            if args.output is None:
+                output_dir = cfg['data']['output']
+            else:
+                output_dir = args.output
 
-        # backup_source_code(os.path.join(output_dir, 'code'))
-        # without backup_source_code function, the output_dir structure has to be created here:
-        if os.path.exists(output_dir):
-            shutil.rmtree(output_dir)
-        os.makedirs(output_dir)
+            # backup_source_code(os.path.join(output_dir, 'code'))
+            # without backup_source_code function, the output_dir structure has to be created here:
+            if os.path.exists(output_dir):
+                shutil.rmtree(output_dir)
+            os.makedirs(output_dir)
 
-        config.save_config(cfg, f'{output_dir}/cfg.yaml')
+            config.save_config(cfg, f'{output_dir}/cfg.yaml')
 
-        dataset = get_dataset(cfg, args, device=args.device)
-        
-        slam = SLAM(args, cfg)
+            dataset = get_dataset(cfg, args, device=args.device)
+            
+            slam = SLAM(args, cfg)
 
-        try:
-            slam.run(dataset)
-        except Exception as e:
-            errors[f"{location} - {date}"] =  str(e)
-            continue
+            try:
+                slam.run(dataset)
+            except Exception as e:
+                errors[f"{location} - {date}"] =  str(e)
+                continue
 
-        slam.terminate(rank=-1, stream=dataset)
+            slam.terminate(rank=-1, stream=dataset)
 
-        print('Done!')
-
+            print('Done!')
